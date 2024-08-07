@@ -1,0 +1,372 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Stardos+Stencil:wght@400;700&display=swap');
+
+* {
+    font-family: "Poppins", sans-serif;
+    box-sizing: border-box;
+    padding: 0; margin: 0;
+    color: #eee;
+    user-select: none;
+}
+*:not(div) {
+    overflow-y: hidden;
+}
+html, body {
+    height: 100%;
+}
+
+body {
+    background: #030014;
+    background: url(/data/Design.png) no-repeat center center fixed;
+    background-size: cover;
+    text-align: center;
+}
+button {
+    background: transparent;
+    box-shadow: inset 0 10px 40px #3b2eb2;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    border: 1px solid #6458ce;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: fit-content;
+    transition: background .5s ease;
+}
+button.round {
+    border-radius: 100px;
+    height: 40px;
+    width: 40px;
+    padding: 0;
+}
+button:active {
+    background: #3B2EB2;
+}
+ion-icon {
+    color: #fff;
+    font-size: 1.3rem;
+}
+main {
+    display: flex;
+    height: 100%; width: 100vw;
+    scroll-snap-type: x mandatory;
+    scroll-snap-align: end;
+    scroll-behavior: smooth;
+}
+main::-webkit-scrollbar {
+    display: none;
+}
+@keyframes slideIn {
+    from {
+        transform: rotateY(0deg) translateX(0) scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: rotateY(-120deg) translateX(100vw) scale(.8);
+        opacity: 0;
+    }
+}
+
+
+#root {
+    scroll-snap-align: end;
+    padding: 30px;
+    overflow-y: hidden;
+    height: 100%; min-width: 100vw;
+    max-height: 100%;
+    perspective: 15000px;
+    
+    animation-timeline: scroll(x);
+
+    animation-name: slideIn;
+    animation-fill-mode: both;
+    animation-duration: 1ms; /* Firefox requires this to apply the animation */
+    animation-timing-function: linear;
+}
+
+.popup {
+    scroll-snap-align: end;
+    height: 100%; min-width: 100vw;
+    position: relative; right: -100px;
+    z-index: 1;
+    padding: 10%;
+    background: #3B2EB2;
+    animation: landLeft 1s .2s ease forwards;
+}
+@keyframes landLeft {
+    to {right: 0;}
+}
+.popup nav {
+    position: absolute;
+    left: -20vw; top: 50%;
+    transform: translateY(-50%);
+    width: 20vw;
+    gap: 15px;
+    padding-block: 20px;
+    display: flex;
+    border-left: 1px solid #3B2EB2;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 40px 0 0 40px;
+    backdrop-filter: blur(20px);
+    background: linear-gradient(#130634, transparent, #130634);
+    overflow: visible !important;
+
+    animation-timeline: scroll(x);
+
+    animation-name: slideBack;
+    animation-fill-mode: both;
+    animation-duration: 1ms; /* Firefox requires this to apply the animation */
+    animation-timing-function: linear;
+}
+.popup nav #scrollAnchor {
+    position: absolute;
+    left: -30px; top: 50%;
+    transform: translateY(-50%);
+    padding: 10px 5px;
+    color: transparent;
+    animation: scrollAnchor 2s 10s ease infinite alternate;
+}
+@keyframes scrollAnchor {
+    to {
+        color: #776be6; 
+        transform: translate(-5px, -50%);
+    }
+}
+
+@keyframes slideBack {
+    from, 85% {
+        transform: translateX(0) translateY(-50%);
+    }
+    to {
+        transform: translateX(20vw) translateY(-50%);
+        border-radius: 0 40px 40px 0;
+        background: #130634;
+        border: none;
+        border-right: 1px solid #776be6;
+    }
+}
+.popup nav::after, .popup nav::before {
+    content: "";
+    position: absolute;
+    background: #130634;
+    height: 25px;
+    width: 100%;
+    border-right: 15px solid #130634;
+    z-index: -1;
+
+    animation-timeline: scroll(x);
+
+    animation-fill-mode: both;
+    animation-duration: 1ms; /* Firefox requires this to apply the animation */
+    animation-timing-function: linear;
+}
+
+
+@keyframes slideBackPseudoBefore {
+    5%, 50% {
+        height: 0px;
+        width: 0px;
+        opacity: 0;
+    }
+    to {
+        transform: rotateZ(198deg) translateX(10px);
+        border-radius: 0 0 0 100px;
+    }
+}
+@keyframes slideBackPseudoAfter {
+    5%, 50% {
+        height: 0px;
+        width: 0px;
+        opacity: 0;
+    }
+    to {
+        transform: rotateZ(-198deg) translateX(10px);
+        border-radius: 100px 0 0 0;
+    }
+}
+.popup nav::before {
+    animation-name: slideBackPseudoBefore;
+    top: 0;
+    border-radius: 100px 0 0 0;
+    transform: rotateZ(-18deg) translateX(10px);
+}
+.popup nav::after {
+    animation-name: slideBackPseudoAfter;
+    bottom: 0;
+    border-radius: 0 0 0 100px;
+    transform: rotateZ(18deg) translateX(10px);
+}
+.popup nav .day {
+    height: 45px;
+    width: 45px;
+    font-weight: bolder;
+    font-size: .7rem;
+    border-radius: 50%;
+    border: 3px solid;
+    display: grid;
+    color: #776be6;
+    place-items: center;
+    transition: 
+        color .25s ease,
+        border-color .25s ease,
+        background .25s ease;
+}
+.popup nav .day.active {
+    border-color: #3B2EB2;
+    background: #3B2EB2;
+    color: white;
+}
+
+
+
+
+
+
+
+
+.upper {
+    text-shadow: 0 0 100px #3B2EB2;
+    font-weight: 800;
+    position: relative;
+    top: -100px;
+    animation: landDown 1s ease forwards;
+}
+@keyframes landDown {
+    to {top: 0;}
+}
+.upper h5 {
+    font-weight: 700;
+    color: #ccc;
+}
+.body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: absolute;
+    width: 80vw; height: 70vh;
+    top: 50%; left: -80%;
+    padding: 20px;
+    transform: translateY(-50%);
+    animation: landRight 1s .2s ease forwards;
+}
+@keyframes landRight {
+    to {left: 0;}
+}
+.lower {
+    position: fixed;
+    bottom: 0px; left: 0;
+    padding-inline: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+@keyframes landUp {
+    to {
+        bottom: 0;
+    }
+}
+.lower > button {
+    position: relative;
+    bottom: -100px;
+    animation: landUp 1s .2s ease forwards;
+}
+.addBtnContainer {
+    padding: 15px;
+    box-shadow: 0 0 100px #3b2eb280;
+    display: grid;
+    place-items: center;
+    position: relative;
+    background: #030014;
+    border-radius: 25px 25px 0 0;
+    height: 100px;
+    bottom: -100px;
+    animation: landUp 1s ease forwards;
+}
+.addBtnContainer button {
+    position: relative;
+    height: 65px;
+    width: 65px;
+    z-index: 1;
+}
+.addBtnContainer button ion-icon {
+    font-size: 5rem;
+}
+
+.addBtnContainer::before {
+    transform: rotate(18deg);
+    left: -10px;
+    border-top-left-radius: 25px;
+}
+.addBtnContainer::after {
+    transform: rotate(-18deg);
+    right: -10px;
+    border-top-right-radius: 25px;
+}
+.addBtnContainer::before,
+.addBtnContainer::after {
+    content: "";
+    position: absolute;
+    background: #030014;
+    height: 100%;
+    width: 25px;
+    border-bottom: 10px solid #030014;
+}
+
+.container::before {
+    content: "";
+    z-index: -1;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0; left: 0;
+    filter: brightness(50%);
+    background: url(/data/bg.avif);
+    transition: transform .5s ease;
+}
+.container:nth-of-type(2)::before {
+    background: url(https://img.pikbest.com/ai/illus_our/20230427/63635b8753dbcb0915235aae00ae5d7f.jpg!w700wp);
+    background-position: center;
+}
+.container:active::before {
+    transform: scale(1.2);
+}
+.container {
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    padding: 30px 10px;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    border: 1px solid #3b2eb280;
+    box-shadow: inset 0 50px 80px #3b2eb280,
+                0 10px 80px #3b2eb280;
+}
+.container button {
+    margin-top: auto;
+}
+.timeContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+.timeContainer .timeGroup {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    height: 2rem;
+}
+.timeContainer .timeGroup * {
+    line-height: 0;
+    height: 10px;
+}
+.timeContainer .time {
+    font-size: 3.5em;
+    font-weight: 700;
+    font-family: "Stardos Stencil", system-ui;
+}

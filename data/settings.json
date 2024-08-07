@@ -1,0 +1,94 @@
+{
+    "alarms": [
+        {
+            "timestamp": 35400,
+            "isActive": true,
+            "excludeDaysOfTheWeek": [],
+            "ringtoneIndex": 0
+        },
+        {
+            "timestamp": 37800,
+            "isActive": true,
+            "excludeDaysOfTheWeek": [],
+            "ringtoneIndex": 1
+        },
+        {
+            "timestamp": 40200,
+            "isActive": true,
+            "excludeDaysOfTheWeek": [],
+            "ringtoneIndex": 2
+        },
+        {
+            "timestamp": 40800,
+            "isActive": true,
+            "excludeDaysOfTheWeek": [],
+            "ringtoneIndex": 0
+        },
+        {
+            "timestamp": 43200,
+            "isActive": true,
+            "excludeDaysOfTheWeek": [],
+            "ringtoneIndex": 1
+        },
+        {
+            "timestamp": 45600,
+            "isActive": true,
+            "excludeDaysOfTheWeek": [],
+            "ringtoneIndex": 2
+        },
+        {
+            "timestamp": 47700,
+            "isActive": true,
+            "excludeDaysOfTheWeek": [],
+            "ringtoneIndex": 0
+        },
+        {
+            "timestamp": 50100,
+            "isActive": true,
+            "excludeDaysOfTheWeek": [],
+            "ringtoneIndex": 1
+        },
+        {
+            "timestamp": 52500,
+            "isActive": true,
+            "excludeDaysOfTheWeek": [],
+            "ringtoneIndex": 2
+        },
+        {
+            "timestamp": 53100,
+            "isActive": true,
+            "excludeDaysOfTheWeek": [],
+            "ringtoneIndex": 0
+        },
+        {
+            "timestamp": 55500,
+            "isActive": true,
+            "excludeDaysOfTheWeek": [],
+            "ringtoneIndex": 1
+        },
+        {
+            "timestamp": 57900,
+            "isActive": true,
+            "excludeDaysOfTheWeek": [],
+            "ringtoneIndex": 3
+        }
+    ],
+    "ringtones": [
+        {
+            "name": "1st Period",
+            "ringtone": [1000, 1000, 2000]
+        },
+        {
+            "name": "2nd Period",
+            "ringtone": [1000, 1000, 1000, 1000, 2000]
+        },
+        {
+            "name": "Break",
+            "ringtone": [4000]
+        },
+        {
+            "name": "School End",
+            "ringtone": [8000]
+        }
+    ]
+}

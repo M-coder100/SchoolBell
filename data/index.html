@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart School Bell</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="main.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <main>
+        <div id="root">
+            <div class="upper">
+                <h2>Smart School Bell</h2>
+                <h5>GHS KOILA - BANTWAL TQ</h5>
+            </div>
+            <div class="body">
+                <div class="container">
+                    <h4>Tuesday, 22/06/2024</h4>
+                    <div class="date"></div>
+                    <div class="timeContainer">
+                        <div class="time"><ion-icon name="play"></ion-icon>10:45</div>
+                        <div class="timeGroup">
+                            <div class="seconds">:23</div>
+                            <div class="meridian">PM</div>
+                        </div>
+                    </div>
+                    <button>Recalibrate</button>
+                </div>
+                <div class="container">
+                    <h4>Upcomming Alarm</h4>
+                    <div class="timeContainer">
+                        <div class="time"><ion-icon name="notifications"></ion-icon>11:30</div>
+                        <div class="timeGroup">
+                            <div class="seconds">:00</div>
+                            <div class="meridian">PM</div>
+                        </div>
+                    </div>
+                    <button>View All Alarms <ion-icon name="chevron-forward-circle-outline"></ion-icon></button>
+                </div>
+            </div>
+            <div class="lower">
+                <button class="round"><ion-icon name="notifications"></ion-icon></button>
+                <div class="addBtnContainer">
+                    <button class="round"><ion-icon name="add-circle"></ion-icon></button>
+                </div>
+                <button class="round"><ion-icon name="cog"></ion-icon></button>
+            </div>
+        </div>
+        <div class="popup">
+            <nav>
+                <div class="day">Sun</div>
+                <div class="day">MON</div>
+                <div class="day active">TUE</div>
+                <div class="day">WED</div>
+                <div class="day">THU</div>
+                <div class="day">FRI</div>
+                <div class="day">SAT</div>
+                <ion-icon name="chevron-back-outline" id="scrollAnchor"></ion-icon>
+            </nav>
+
+            <aside></aside>
+            <div>
+                Hello World
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        document.querySelectorAll("nav > .day").forEach(elm => {
+            elm.onclick = () => {
+                elm.parentElement.querySelector(".day.active").classList.remove("active");        
+                elm.classList.add("active");
+            }
+        })
+    </script>
+</body>
+</html>
