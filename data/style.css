@@ -90,10 +90,39 @@ main::-webkit-scrollbar {
     height: 100%; min-width: 100vw;
     position: relative; right: -100px;
     z-index: 1;
-    padding: 10%;
     background: #3B2EB2;
     animation: landLeft 1s .2s ease forwards;
 }
+
+div#timeLine {
+    height: 60%;
+    background: white;
+    border: 20px solid #3B2EB2;
+    border-radius: 80px;
+}
+header {
+    height: 20%;
+}
+footer {
+    height: 20%;
+    padding: 20px;
+}
+footer .container {
+    padding: 13px;
+    background: white;
+    box-shadow: none;
+    border: 1px solid #776be6;
+}
+footer .container * {
+    color: black;
+}
+footer .container::before {
+    background: none;
+}
+footer .container h4 {
+    /* background: red; */
+}
+
 @keyframes landLeft {
     to {right: 0;}
 }

@@ -9,7 +9,8 @@
 // Module connection pins (Digital Pins)
 #define CLK D3
 #define DIO D4
-#define RELAY D5
+#define RELAY D0
+int btns[4] = {D7, A0, D6, D5};
 
 RTC_DS3231 rtc;
 AsyncWebServer server(80);
@@ -34,7 +35,42 @@ int timeArray[7] = {};
 
 bool colonState = false;
 char daysOfTheWeek[7][12] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-unsigned long lastMillis = 0;
+unsigned long clkLoopLastMillis = 0;
+unsigned long btnLoopLastMillis = 0;
+int clkLoopDuration = 1000;
+int btnLoopDuration = 100;
+
+// 1: middle line
+// 2: top left line
+// 3: bottom left line
+// 4: bottom line
+// 5: bottom right line
+// 6: top right line
+// 7: top line
+
+const uint8_t T = 0b01111000; // T
+const uint8_t I = 0b00110000; // I
+const uint8_t M = 0b01010101; // M
+const uint8_t E = 0b01111001; // E
+const uint8_t S = 0b01101101; // S
+const uint8_t B = 0b01111100; // B
+const uint8_t L = 0b00111000; // L
+const uint8_t A = 0b01110111; // A
+const uint8_t D = 0b01011110; // D
+
+int pressCount = 0;
+int lastModeIndex = 0;
+int lastMenuOptIndex = 0;
+int btnModeTimeout = 0;
+int btnMenuTimeout = 0;
+int maxCycleModeIndex = 5;
+int maxCycleMenuIndex = 0;
+bool inMode = false;
+
+bool inEditMode = false;
+bool editModeBlinkState = false;
+int editModeTime = 0;
+int editModeIndex = 0;
 
 const char* ssid = "Smart School Bell";
 const char* password = "ghskoila2024";
@@ -54,6 +90,11 @@ void initializeComponents() {
 	// RELAY
 	pinMode(RELAY, OUTPUT);
 	digitalWrite(RELAY, HIGH);
+
+	// BUTTONS
+	for (int i = 0; i < sizeof(btns); i++) {
+		pinMode(btns[i], INPUT);
+	} 
 
 	// DISPLAY
 	display.setBrightness(0x0f);
@@ -129,16 +170,16 @@ bool loadAlarms() {
 
 
 // Utility Functions
-void secondsToTime(int totalSeconds, int& hours, int& minutes, int& seconds) {
+void secondsToTime (int totalSeconds, int& hours, int& minutes, int& seconds) {
   hours = totalSeconds / 3600;
   totalSeconds %= 3600;
   minutes = totalSeconds / 60;
   seconds = totalSeconds % 60;
 }
-int timeToSeconds(int hour, int minutes, int seconds) {
+int timeToSeconds (int hour, int minutes, int seconds) {
 	return hour * 3600 + minutes * 60 + seconds;
 }
-bool isExcluded(JsonArray excludeDays, int day) {
+bool isExcluded (JsonArray excludeDays, int day) {
   for (JsonVariant v : excludeDays) {
     if (v.as<int>() == day) {
       return true;
@@ -146,12 +187,12 @@ bool isExcluded(JsonArray excludeDays, int day) {
   }
   return false;
 }
-void clearActiveAlarm() {
+void clearActiveAlarm () {
 	JsonObject root_noValidAlarms = doc_noValidAlarms.to<JsonObject>();
 	root_noValidAlarms["noValidAlarms"] = true;
 	activeAlarm = root_noValidAlarms;
 }
-void getActiveAlarm() {
+void getActiveAlarm () {
 	clearActiveAlarm();
 	// Initialize variables to find the alarm with least timestamp
 	int leastTimestamp = 86401; // 24h + 1s to seconds
@@ -218,7 +259,16 @@ void getActiveAlarm() {
 	}
 	Serial.println("");
 }
-void playRingtone(JsonArray ringtoneArray) {
+void createNewAlarm (int totalSeconds, bool isActive, int ringtoneIndex) {
+	JsonObject newAlarm = alarms.createNestedObject();
+	newAlarm["timestamp"] = totalSeconds;
+	newAlarm["isActive"] = true;
+	newAlarm.createNestedArray("excludeDaysOfTheWeek");
+	newAlarm["ringtoneIndex"] = 1;
+
+	getActiveAlarm();
+}
+void playRingtone (JsonArray ringtoneArray) {
 	int index = 0;
 	for (int ringtoneDuration: ringtoneArray) {
 		if (index % 2 == 0) {
@@ -230,6 +280,36 @@ void playRingtone(JsonArray ringtoneArray) {
 	}
 	digitalWrite(RELAY, HIGH);
 }
+int analogToDigitalRead (uint8_t pin) {
+	return int(analogRead(pin)/1024);
+}
+void enterEditMode (int time) {
+	editModeTime = time;
+	editModeIndex = 0;
+	inEditMode = true;
+	inMode = true;
+}
+void resetDisplay () {
+	btnModeTimeout = 0;
+	btnMenuTimeout = 0;
+	lastModeIndex = 0;
+	lastMenuOptIndex = 0;
+	inMode = false;
+	inEditMode = false;
+	editModeTime = 0;
+	handleDisplayLoop();
+}
+void displayMode (int modeIndex) {
+	uint8_t set[] = {S,E,T,0x00};
+	uint8_t time[] = {T,I,M,E};
+	uint8_t bell[] = {B,E,L,L};
+	uint8_t add[] = {A,D,D,0x00};
+	if (modeIndex == 1) display.setSegments(set);
+	if (modeIndex == 2) display.setSegments(time);
+	if (modeIndex == 3) display.setSegments(bell);
+	if (modeIndex == 4) display.setSegments(add);
+}
+
 
 // Loop Functions
 void handleAlarmLoop () {
@@ -293,21 +373,11 @@ void handleSerialInput() {
 		int hour = timeInput.substring(0, 2).toInt(); // Parse hours
 		int minute = timeInput.substring(3, 5).toInt(); // Parse minutes
 		int second = (timeInput.length() == 8) ? timeInput.substring(6, 8).toInt() : 0; // Parse seconds or default to 0
-
 		int totalSeconds = timeToSeconds(hour, minute, second); // Convert to seconds
+		createNewAlarm(totalSeconds, true, serialActiveAlarmIndex);
 
-		Serial.print("Total seconds: ");
-		Serial.println(totalSeconds);
-
-		JsonObject newAlarm = alarms.createNestedObject();
-		newAlarm["timestamp"] = totalSeconds;
-		newAlarm["isActive"] = true;
-		newAlarm.createNestedArray("excludeDaysOfTheWeek"); // need to be removed
 		if (serialActiveAlarmIndex > 3) serialActiveAlarmIndex = 0;
-		newAlarm["ringtoneIndex"] = serialActiveAlarmIndex; // need to be removed
 		serialActiveAlarmIndex++; // need to be removed
-		
-		getActiveAlarm();
 	}
 }
 void updateTimeArray() {
@@ -328,6 +398,139 @@ void updateTimeArray() {
 	timeArray[5] = minute;
 	timeArray[6] = second;
 }
+void handleButtonInput () {
+	int modeBtn = btns[0];
+	int upBtn = btns[1];
+	int proceedBtn = btns[2];
+	int downBtn = btns[3];
+	if (inEditMode) {
+		if (editModeBlinkState) {
+			uint8_t clear = 0b00000000;
+			display.setSegments(&clear, 1, editModeIndex);
+		} else display.showNumberDecEx(editModeTime, 0b11100000, true);
+		editModeBlinkState = !editModeBlinkState;
+
+		// Up & Down Buttons
+		if (analogToDigitalRead(upBtn)) {
+			int num = 1000/(pow10(editModeIndex));
+			if (int(editModeTime%num) < 9*num) {
+				editModeTime += num;
+				display.showNumberDecEx(editModeTime, 0b11100000, true);
+			} 
+		}
+		if (digitalRead(downBtn)) {
+			int num = 1000/(pow10(editModeIndex));
+			if (editModeTime > num) {
+				editModeTime -= num;
+				display.showNumberDecEx(editModeTime, 0b11100000, true);
+			}
+		}
+		if (digitalRead(modeBtn) && editModeIndex < 3) { 
+			editModeIndex++;
+			if (int(editModeTime/100) > 24) {
+				editModeTime = 2400 + editModeTime % 100;
+			}
+			if (int(editModeTime%100) > 60) {
+				editModeTime = editModeTime - editModeTime % 100 + 60;
+			}
+		}
+		if (digitalRead(proceedBtn) && editModeIndex > 0) { 
+			editModeIndex--;
+			if (int(editModeTime/100) > 24) {
+				editModeTime = 2400 + editModeTime % 100;
+			}
+			if (int(editModeTime%100) > 60) {
+				editModeTime = editModeTime - editModeTime % 100 + 60;
+			}
+		}
+		if (digitalRead(proceedBtn)) {
+			pressCount++;
+			if (pressCount > 10) {
+				pressCount = 0;
+				if (lastModeIndex == 2) rtc.adjust(DateTime(timeArray[0], timeArray[1], timeArray[2], int(editModeTime/100), int(editModeTime%100), 0));
+				if (lastModeIndex == 4) {
+					int totalSeconds = timeToSeconds(int(editModeTime/100), int(editModeTime%100), 0); // Convert to seconds
+					createNewAlarm(totalSeconds, true, 0);
+				}
+				resetDisplay();
+			}
+		} else {pressCount = 0;}
+		if (digitalRead(modeBtn) && analogToDigitalRead(upBtn) && digitalRead(downBtn)) resetDisplay();
+		return;
+	}
+	
+	// Mode Button
+	if (!inMode) {
+		if (lastModeIndex >= maxCycleModeIndex) {
+			resetDisplay();
+			return;
+		}
+		if (digitalRead(modeBtn)) {
+			if (btnModeTimeout < 0) {
+				btnModeTimeout++;
+			} else {
+				btnModeTimeout = -3; // delay on press
+				lastModeIndex++;
+				displayMode(lastModeIndex);
+			}
+		} else if (btnModeTimeout >= 20) { // timeout delay after press
+			resetDisplay();
+		} else if (lastModeIndex != 0) btnModeTimeout++;
+	} else if (digitalRead(modeBtn)) {
+		resetDisplay();
+	} else {
+		// Up & Down Buttons
+		if (analogToDigitalRead(upBtn) && lastMenuOptIndex < maxCycleMenuIndex) {
+			lastMenuOptIndex++;
+			display.showNumberDec(lastMenuOptIndex+1, true);
+		}
+		if (digitalRead(downBtn) && lastMenuOptIndex > 0) {
+			lastMenuOptIndex--;
+			display.showNumberDec(lastMenuOptIndex+1, true);
+		}
+	}
+
+	// Proceed Button
+	if (digitalRead(proceedBtn)) {
+		if (btnMenuTimeout < 0) {
+				btnMenuTimeout++;
+		} else {
+			btnMenuTimeout = -1; // delay on press
+			switch (lastModeIndex) {
+			case 1: // SET
+				if (inMode) {
+					btnMenuTimeout = 0;
+					int hours = 0; int minutes = 0; int seconds = 0;
+					secondsToTime(alarms[lastMenuOptIndex]["timestamp"], hours, minutes, seconds);
+					enterEditMode(hours * 100 + minutes);
+				} else display.showNumberDec(lastMenuOptIndex+1, true);
+				inMode = true;
+				maxCycleMenuIndex = alarms.size()-1;
+				break;
+			case 2: // TIME
+				enterEditMode(timeArray[4] * 100 + timeArray[5]);
+				break;
+			case 3: // BELL
+				display.showNumberDec(lastMenuOptIndex+1, true);
+
+				if (inMode) {
+					btnMenuTimeout = 0;
+					playRingtone(ringtones[lastMenuOptIndex]["ringtone"]);
+				}
+				maxCycleMenuIndex = ringtones.size()-1;
+				inMode = true;
+				break;
+			case 4: // ADD
+				enterEditMode(0);
+				break;
+			default:
+				break;
+			}
+		}
+	}
+}
+
+
 
 void setup() {
 	Serial.begin(115200);
@@ -340,18 +543,20 @@ void setup() {
 	serveWebApp();
 	loadAlarms();
 }
-
 void loop() {
 	unsigned long currentMillis = millis();
-	if (currentMillis - lastMillis >= 1000) {
-		lastMillis = currentMillis;
+	if (currentMillis - clkLoopLastMillis >= clkLoopDuration) {
+		clkLoopLastMillis = currentMillis;
 
 		updateTimeArray();
-		handleDisplayLoop();
+		if (lastModeIndex == 0 && !inMode) handleDisplayLoop();
 		handleAlarmLoop();
-		handleSerialLogs();
+		// handleSerialLogs();
 	}
-
+	if (currentMillis - btnLoopLastMillis >= btnLoopDuration) {
+		btnLoopLastMillis = currentMillis;
+		handleButtonInput();
+	}		
 	// Take messages from serial
 	handleSerialInput();
 }
