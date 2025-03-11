@@ -5,6 +5,7 @@
 #include <ESPAsyncWebServer.h>
 #include <TM1637Display.h>
 #include <ArduinoJson.h>
+#include <WebSocketsServer.h>
 
 // Module connection pins (Digital Pins)
 #define CLK D3
@@ -15,6 +16,7 @@ int btns[4] = {D7, A0, D6, D5};
 RTC_DS3231 rtc;
 AsyncWebServer server(80);
 TM1637Display display(CLK, DIO);
+WebSocketsServer webSocket = WebSocketsServer(81);
 
 JsonArray alarms;
 JsonArray ringtones;
@@ -22,6 +24,8 @@ JsonObject activeAlarm;
 
 StaticJsonDocument<8192> doc_alarms;
 StaticJsonDocument<256> doc_noValidAlarms;
+StaticJsonDocument<200> doc_tx;
+StaticJsonDocument<200> doc_rx;
 
 // w:yy:mm:dd:hh:mm:ss
 // 0: dayOfTheWeek
@@ -77,6 +81,7 @@ const char* password = "ghskoila2024";
 
 // Setup Functions
 void mountFileSystem() {
+	Serial.println("Mounting File System...");
 	LittleFS.begin();
 	if (!LittleFS.begin()) {
 		Serial.println("File does not exist");
@@ -87,6 +92,7 @@ void mountFileSystem() {
 	}
 }
 void initializeComponents() {
+	Serial.println("Initializing Components...");
 	// RELAY
 	pinMode(RELAY, OUTPUT);
 	digitalWrite(RELAY, HIGH);
@@ -109,6 +115,7 @@ void initializeComponents() {
 		Serial.println("RTC lost power, let's set the time!");
 		rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 	}
+	Serial.println("Components Initialized Successfully!");
 }
 void serveWiFi() {
 	WiFi.softAP(ssid, password);
@@ -121,6 +128,44 @@ void handleServerRequests() {
 	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
 		request->send(LittleFS, "/index.html", "text/html", false);          
 	});
+	server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(LittleFS, "/style.css", "text/css");
+	});
+	server.on("/main.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(LittleFS, "/main.js", "text/javascript");
+	});
+	server.on("/backend.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(LittleFS, "/backend.js", "text/javascript");
+	});
+	server.on("/manifest.json", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(LittleFS, "/manifest.json", "application/json");
+	});
+	server.on("/settings.json", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(LittleFS, "/settings.json", "application/json");
+	});
+	server.on("/bg1.avif", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(LittleFS, "/bg1.avif", "image/avif");
+	});
+	server.on("/bg2.webp", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(LittleFS, "/bg2.webp", "image/webp");
+	});
+	server.on("/bg3.png", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(LittleFS, "/bg3.png", "image/png");
+	});
+	server.on("/fonts/Poppins/Poppins-Regular.ttf", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(LittleFS, "/fonts/Poppins/Poppins-Regular.ttf", "font/ttf");
+	});
+	server.on("/fonts/Poppins/Poppins-Bold.ttf", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(LittleFS, "/fonts/Poppins/Poppins-Bold.ttf", "font/ttf");
+	});
+	server.on("/fonts/Poppins/Poppins-ExtraBold.ttf", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(LittleFS, "/fonts/Poppins/Poppins-ExtraBold.ttf", "font/ttf");
+	});
+	server.on("/fonts/Stardos_Stencil/StardosStencil-Bold.ttf", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(LittleFS, "/fonts/Stardos_Stencil/StardosStencil-Bold.ttf", "font/ttf");
+	});
+
+
 	// Serve dynamic content
 	server.on("/time", HTTP_GET, [](AsyncWebServerRequest *request) {
 		String newString = "[";
@@ -136,6 +181,7 @@ void handleServerRequests() {
 }
 void serveWebApp() {
 	serveWiFi();
+	initializeWebSocket();
 	handleServerRequests();
 	Serial.println("Web server started!");
 }
@@ -165,11 +211,52 @@ bool loadAlarms() {
 
 	alarms = doc_alarms["alarms"];
 	ringtones = doc_alarms["ringtones"];
+	Serial.println("Alarms Loaded Successfully!");
 	return true;
+}
+void initializeWebSocket() {
+  webSocket.begin();
+  webSocket.onEvent(webSocketEvent);
 }
 
 
 // Utility Functions
+void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
+  switch(type) {
+    case WStype_TEXT:
+
+      // Handle incoming text message from the client
+      DeserializationError error = deserializeJson(doc_rx, payload);
+      if (error) {
+        Serial.println("ERR: Something went wrong while deserializing the data");
+        return;
+      } else {
+        String commandName = doc_rx["name"];
+        String commandData = doc_rx["data"];
+
+        Serial.print("<- Got Server Message: ");
+        serializeJson(doc_rx, Serial);
+        Serial.println();
+		
+        if (commandName == "BELL") {
+			playRingtone(ringtones[commandData.toInt()]["ringtone"]);
+          	return;
+        }
+		if (commandName == "TIME") {
+			JsonArray newTimeArray = doc_rx["data"];
+			recalibrateTime(newTimeArray[0].as<int>(), newTimeArray[1].as<int>(), newTimeArray[2].as<int>(), newTimeArray[3].as<int>(), newTimeArray[4].as<int>(), newTimeArray[5].as<int>());
+			return;	
+		}
+      }
+
+      break;
+  }
+}
+void recalibrateTime (int year, int month, int day, int hours, int minutes, int seconds) {
+	rtc.adjust(DateTime(year, month, day, hours, minutes, seconds));
+	Serial.println("Time recalibrated successfully!");
+	getActiveAlarm();
+}
 void secondsToTime (int totalSeconds, int& hours, int& minutes, int& seconds) {
   hours = totalSeconds / 3600;
   totalSeconds %= 3600;
@@ -262,13 +349,14 @@ void getActiveAlarm () {
 void createNewAlarm (int totalSeconds, bool isActive, int ringtoneIndex) {
 	JsonObject newAlarm = alarms.createNestedObject();
 	newAlarm["timestamp"] = totalSeconds;
-	newAlarm["isActive"] = true;
+	newAlarm["isActive"] = isActive;
 	newAlarm.createNestedArray("excludeDaysOfTheWeek");
-	newAlarm["ringtoneIndex"] = 1;
+	newAlarm["ringtoneIndex"] = ringtoneIndex;
 
 	getActiveAlarm();
 }
 void playRingtone (JsonArray ringtoneArray) {
+	Serial.println("Ringtone Playing...");
 	int index = 0;
 	for (int ringtoneDuration: ringtoneArray) {
 		if (index % 2 == 0) {
@@ -279,6 +367,7 @@ void playRingtone (JsonArray ringtoneArray) {
 		index++;
 	}
 	digitalWrite(RELAY, HIGH);
+	Serial.println("Ringtone Played Successfully!");
 }
 int analogToDigitalRead (uint8_t pin) {
 	return int(analogRead(pin)/1024);
@@ -326,7 +415,9 @@ void handleAlarmLoop () {
 			int ringtoneIndex =  activeAlarm["ringtoneIndex"];
 
 			if ((totalSeconds >= timestamp) && isActive) {
-				playRingtone(ringtones[ringtoneIndex]["ringtone"]);
+				if (abs(totalSeconds - timestamp) < 10) {
+					playRingtone(ringtones[ringtoneIndex]["ringtone"]);
+				}
 				getActiveAlarm();
 			}
 		} else if (hour == 0 && minute == 0 && second == 0) {
@@ -447,7 +538,9 @@ void handleButtonInput () {
 			pressCount++;
 			if (pressCount > 10) {
 				pressCount = 0;
-				if (lastModeIndex == 2) rtc.adjust(DateTime(timeArray[0], timeArray[1], timeArray[2], int(editModeTime/100), int(editModeTime%100), 0));
+				if (lastModeIndex == 2) {
+					recalibrateTime(timeArray[1], timeArray[2], timeArray[3], int(editModeTime/100), int(editModeTime%100), 0);
+				}
 				if (lastModeIndex == 4) {
 					int totalSeconds = timeToSeconds(int(editModeTime/100), int(editModeTime%100), 0); // Convert to seconds
 					createNewAlarm(totalSeconds, true, 0);
@@ -536,8 +629,6 @@ void setup() {
 	Serial.begin(115200);
 	Serial.println();
 	
-	delay(5000);
-
 	mountFileSystem();
 	initializeComponents();
 	serveWebApp();
@@ -551,6 +642,7 @@ void loop() {
 		updateTimeArray();
 		if (lastModeIndex == 0 && !inMode) handleDisplayLoop();
 		handleAlarmLoop();
+	    webSocket.loop();
 		// handleSerialLogs();
 	}
 	if (currentMillis - btnLoopLastMillis >= btnLoopDuration) {

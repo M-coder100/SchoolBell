@@ -1,94 +1,86 @@
 {
     "alarms": [
         {
-            "timestamp": 35400,
+            "timestamp": 35700,
             "isActive": true,
             "excludeDaysOfTheWeek": [0],
             "ringtoneIndex": 0
         },
         {
-            "timestamp": 37800,
+            "timestamp": 39000,
             "isActive": true,
             "excludeDaysOfTheWeek": [0],
             "ringtoneIndex": 1
         },
         {
-            "timestamp": 40200,
+            "timestamp": 42300,
+            "isActive": true,
+            "excludeDaysOfTheWeek": [0],
+            "ringtoneIndex": 3
+        },
+        {
+            "timestamp": 42600,
             "isActive": true,
             "excludeDaysOfTheWeek": [0],
             "ringtoneIndex": 2
         },
         {
-            "timestamp": 40800,
+            "timestamp": 45900,
             "isActive": true,
             "excludeDaysOfTheWeek": [0],
-            "ringtoneIndex": 0
-        },
-        {
-            "timestamp": 43200,
-            "isActive": true,
-            "excludeDaysOfTheWeek": [0],
-            "ringtoneIndex": 1
-        },
-        {
-            "timestamp": 45600,
-            "isActive": true,
-            "excludeDaysOfTheWeek": [0],
-            "ringtoneIndex": 2
+            "ringtoneIndex": 4
         },
         {
             "timestamp": 47700,
             "isActive": true,
-            "excludeDaysOfTheWeek": [0, 6],
+            "excludeDaysOfTheWeek": [0],
             "ringtoneIndex": 0
         },
         {
-            "timestamp": 50100,
+            "timestamp": 51000,
             "isActive": true,
-            "excludeDaysOfTheWeek": [0, 6],
+            "excludeDaysOfTheWeek": [0],
             "ringtoneIndex": 1
         },
         {
-            "timestamp": 52500,
+            "timestamp": 54300,
             "isActive": true,
-            "excludeDaysOfTheWeek": [0, 6],
+            "excludeDaysOfTheWeek": [0],
+            "ringtoneIndex": 3
+        },
+        {
+            "timestamp": 54600,
+            "isActive": true,
+            "excludeDaysOfTheWeek": [0],
             "ringtoneIndex": 2
-        },
-        {
-            "timestamp": 53100,
-            "isActive": true,
-            "excludeDaysOfTheWeek": [0, 6],
-            "ringtoneIndex": 0
-        },
-        {
-            "timestamp": 55500,
-            "isActive": true,
-            "excludeDaysOfTheWeek": [0, 6],
-            "ringtoneIndex": 1
         },
         {
             "timestamp": 57900,
             "isActive": true,
-            "excludeDaysOfTheWeek": [0, 6],
-            "ringtoneIndex": 3
+            "excludeDaysOfTheWeek": [0],
+            "ringtoneIndex": 4
         }
     ],
     "ringtones": [
         {
             "name": "1st Period",
-            "ringtone": [1000, 1000, 2000]
+            "ringtone": [1000, 500, 2000]
         },
         {
             "name": "2nd Period",
-            "ringtone": [1000, 1000, 1000, 1000, 2000]
+            "ringtone": [1000, 500, 1000, 500, 2000]
+        },
+        {
+            "name": "3rd Period",
+            "ringtone": [1000, 500, 1000, 500, 1000, 500, 2000]
         },
         {
             "name": "Break",
-            "ringtone": [4000]
+            "ringtone": [3000]
         },
         {
-            "name": "School End",
-            "ringtone": [8000]
+            "name": "Lunch Break",
+            "ringtone": [4000]
         }
     ]
 }

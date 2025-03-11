@@ -1,4 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Stardos+Stencil:wght@400;700&display=swap');
+@font-face {
+    font-family: "Poppins";
+    src: url(fonts/Poppins/Poppins-Regular.ttf), format("truetype");
+    font-weight: 400;
+}
+@font-face {
+    font-family: "Poppins";
+    src: url(fonts/Poppins/Poppins-Bold.ttf), format("truetype");
+    font-weight: 700;
+}
+@font-face {
+    font-family: "Poppins";
+    src: url(fonts/Poppins/Poppins-ExtraBold.ttf), format("truetype");
+    font-weight: 800;
+}
+@font-face {
+    font-family: "Stardos Stencil";
+    src: url(fonts/Stardos_Stencil/StardosStencil-Bold.ttf), format("truetype");
+    font-weight: bold;
+}
+
 
 * {
     font-family: "Poppins", sans-serif;
@@ -15,8 +35,7 @@ html, body {
 }
 
 body {
-    background: #030014;
-    background: url(/data/Design.png) no-repeat center center fixed;
+    background: #000;
     background-size: cover;
     text-align: center;
 }
@@ -25,7 +44,7 @@ button {
     box-shadow: inset 0 10px 40px #3b2eb2;
     padding: 10px 20px;
     border-radius: 10px;
-    font-weight: 600;
+    font-weight: 700;
     border: 1px solid #6458ce;
     display: flex;
     align-items: center;
@@ -39,13 +58,13 @@ button.round {
     height: 40px;
     width: 40px;
     padding: 0;
+    transition: scale .5s ease;
+}
+button.round:active {
+    scale: 1.2;
 }
 button:active {
     background: #3B2EB2;
-}
-ion-icon {
-    color: #fff;
-    font-size: 1.3rem;
 }
 main {
     display: flex;
@@ -53,6 +72,7 @@ main {
     scroll-snap-type: x mandatory;
     scroll-snap-align: end;
     scroll-behavior: smooth;
+    background: url(bg3.png) no-repeat center center fixed;
 }
 main::-webkit-scrollbar {
     display: none;
@@ -76,7 +96,6 @@ main::-webkit-scrollbar {
     height: 100%; min-width: 100vw;
     max-height: 100%;
     perspective: 15000px;
-    
     animation-timeline: scroll(x);
 
     animation-name: slideIn;
@@ -90,37 +109,266 @@ main::-webkit-scrollbar {
     height: 100%; min-width: 100vw;
     position: relative; right: -100px;
     z-index: 1;
-    background: #3B2EB2;
+    background: #21002d7a;
     animation: landLeft 1s .2s ease forwards;
+    display: flex;
 }
 
-div#timeLine {
-    height: 60%;
-    background: white;
-    border: 20px solid #3B2EB2;
-    border-radius: 80px;
+aside {
+    width: 20vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
 }
-header {
-    height: 20%;
+aside > * > button {
+    margin: 20px 0;
+    font-size: xx-large;
 }
-footer {
-    height: 20%;
-    padding: 20px;
+aside #searchBtn {
+    transition: transform .25s ease, scale .5s ease;
 }
-footer .container {
-    padding: 13px;
-    background: white;
-    box-shadow: none;
+aside #searchBtn.active {
+    transform: rotate(360deg);
+}
+aside #searchBtn.active + .searchOptions {
+    padding: 10px;
+    padding-right: 0;
+    height: 150px;
+    overflow: visible;
+    opacity: 1;
+    margin: 20px;
+}
+aside .searchOptions {
+    position: absolute;
+    top: 0; left: 20vw;
+    padding: 10px 0;
+    width: calc(80vw - 40px);
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 10px;
+    z-index: 1;
+    background: #00000001;
+    backdrop-filter: blur(10px);
     border: 1px solid #776be6;
+    border-radius: 10px;
+    margin: 0px;
+    padding: 0;
+    padding-right: 0;
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all .25s ease;
 }
-footer .container * {
-    color: black;
+aside .searchOptions::before {
+    content: "";
+    height: 20px; width: 20px;
+    background: linear-gradient(to top right, #695ec9a9 50%, transparent 50%);
+    position: absolute;
+    top: 10px; left: -10px;
+    rotate: 45deg;
 }
-footer .container::before {
-    background: none;
+aside .searchOptions .searchOptionsContainer {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
-footer .container h4 {
-    /* background: red; */
+aside .searchOptions .searchOptionsContainer > div {
+    display: flex;
+    justify-content: space-between;
+}
+aside .searchOptions [id] {
+    background: #ffffff13;
+    border: 0;
+    border-radius: 5px;
+    padding: 5px;
+}
+aside .searchOptions .searchOptionsControls {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 20%;
+}
+aside .searchOptions .searchOptionsControls p {
+    font-size: small;
+}
+aside .searchOptions .searchOptionsControls .ionicon {
+    height: 28px;
+    background: #ffffff13;
+    padding: 5px;
+}
+aside .searchOptions .searchOptionsControls .searchOptionsControlsContainer {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 5px;
+}
+aside .searchOptions #searchInput {
+    width: 100%;
+}
+aside #addBtn {
+    transition: transform .25s ease, scale .5s ease;
+}
+aside #addBtn.active {
+    transform: rotate(45deg);
+}
+aside #addBtn.active + .tooltipOptions {
+    opacity: 1;
+    visibility: visible;
+    overflow: visible;
+    height: 250px;
+    margin: 20px;
+}
+.tooltipOptions {
+    opacity: 0;
+    position: absolute;
+    bottom: 0; left: 20vw;
+    width: calc(80vw - 40px);
+    background: #00000001;
+    backdrop-filter: blur(10px);
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    border: 1px solid #776be6;
+    margin: 0;
+    visibility: hidden;
+    transition: all .25s ease;
+    height: 0px;
+    overflow: hidden;
+}
+aside .tooltipOptions::before {
+    content: "";
+    height: 20px; width: 20px;
+    background: linear-gradient(to top right, #695ec9a9 50%, transparent 50%);
+    position: absolute;
+    bottom: 10px; left: -10px;
+    rotate: 45deg;
+}
+.tooltipOptions h4 {
+    padding: 10px;
+    height: 100%;
+}
+.tooltipOptions button {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-top: 1px solid #776be6;
+    border-radius: 0;
+    justify-content: flex-start;
+}
+.tooltipOptions button:last-child {
+    border-radius: 0 0 10px 10px;
+}
+div#alarms {
+    height: 100vh;
+    width: 80vw;
+    overflow: auto;
+    padding: calc(50vh - 65px) 20px;
+}
+div#alarms.notCurrentDay .alarm span {
+    text-decoration: none !important;
+}
+div#alarms.notCurrentDay .alarm:hover .status {
+    background: #3B2EB2;
+    border-radius: 0;
+}
+div#alarms:empty::before {
+    content: "It feels quite here..." !important;
+    display: block;
+    font-size: x-large;
+    font-weight: bolder;
+    margin: 10px;
+    color: #3B2EB2 !important;
+    animation: flyIn 1s ease;
+}
+div#alarms:empty::after {
+    content: "Start by creating a new alarm for this day! Can't find your alarm? Turn on show inactive alarms in the search option.";
+    color: #ccc;
+    animation: flyIn 1s ease;
+}
+div#alarms .alarm:hover, div#alarms .alarm.hover {
+    background: #ffffff13;
+    border-radius: 10px;
+    border-bottom: 2px solid #6458ce;
+    height: 130px;
+    padding-right: 50px;
+}
+div#alarms .alarm:hover::after, div#alarms .alarm.hover::after {
+    transform: translate(-15px, -50%);
+}
+div#alarms .alarm::after {
+    content: ">";
+    font-size: 2rem;
+    color: #ccc;
+    position: absolute;
+    display: flex;
+    line-height: 0;
+    justify-content: center;
+    align-items: center;
+    background: #ffffff09;
+    backdrop-filter: blur(10px);
+    border-radius: 100px;
+    height: 40px;
+    width: 40px;
+    top: 50%; right: 0;
+    transform: translate(40px, -50%);
+    transition: transform .25s ease;
+}
+
+div#alarms .alarm {
+    height: 85px;
+    overflow: hidden;
+    padding: 20px;
+    border-bottom: 2px solid transparent;
+    transition: all .25s ease;
+    position: relative;
+    text-wrap: nowrap;
+    animation: flyIn 1s ease;
+}
+@keyframes flyIn {
+    from {
+        filter: blur(20px);
+        margin-block: 50px;
+    }
+}
+div#alarms .alarm.completed span {
+    text-decoration: line-through;
+}
+div#alarms .alarm .status {
+    height: 20px; width: 20px;
+    position: absolute;
+    top: 50%; left: -10px; 
+    transform: translateY(-50%) rotate(45deg);
+    display: none;
+}
+div#alarms .alarm.completed .status {
+    background: green;   
+    border-radius: 10px;
+}
+div#alarms .alarm:not(.completed) .status {
+    background: yellow;   
+    border-radius: 10px;
+}
+div#alarms .alarm.hover .status, div#alarms .alarm:hover .status {
+    display: block;
+}
+div#alarms .alarm.completed + .alarm:not(.completed) .status {
+    background: #6458ce;
+    border-radius: 0;
+}
+div#alarms .alarm.completed * {
+    color: #62625d;
+    fill: currentColor;
+}
+div#alarms:not(:has(.hover))::before {
+    content: "Press on the day with purple left arrow to view today's alarms.";
+    color: yellow;
+    animation: flyIn 1s ease;
 }
 
 @keyframes landLeft {
@@ -128,9 +376,9 @@ footer .container h4 {
 }
 .popup nav {
     position: absolute;
-    left: -20vw; top: 50%;
+    left: -18vw; top: 50%;
     transform: translateY(-50%);
-    width: 20vw;
+    width: 18vw;
     gap: 15px;
     padding-block: 20px;
     display: flex;
@@ -154,12 +402,13 @@ footer .container h4 {
     left: -30px; top: 50%;
     transform: translateY(-50%);
     padding: 10px 5px;
-    color: transparent;
+    opacity: 0;
     animation: scrollAnchor 2s 10s ease infinite alternate;
+    color: #776be6; 
 }
 @keyframes scrollAnchor {
     to {
-        color: #776be6; 
+        opacity: 1;
         transform: translate(-5px, -50%);
     }
 }
@@ -169,7 +418,7 @@ footer .container h4 {
         transform: translateX(0) translateY(-50%);
     }
     to {
-        transform: translateX(20vw) translateY(-50%);
+        transform: translateX(18vw) translateY(-50%);
         border-radius: 0 40px 40px 0;
         background: #130634;
         border: none;
@@ -228,19 +477,32 @@ footer .container h4 {
     transform: rotateZ(18deg) translateX(10px);
 }
 .popup nav .day {
-    height: 45px;
-    width: 45px;
-    font-weight: bolder;
+    height: 40px;
+    width: 40px;
+    font-weight: 700;
     font-size: .7rem;
     border-radius: 50%;
-    border: 3px solid;
+    border: 2px solid;
     display: grid;
     color: #776be6;
     place-items: center;
+    line-height: 0;
     transition: 
-        color .25s ease,
-        border-color .25s ease,
-        background .25s ease;
+    color .25s ease,
+    border-color .25s ease,
+    background .25s ease;
+}
+.popup nav .day.currentDay {
+    background: #130634;
+}
+.popup nav .day.currentDay::after {
+    content: "";
+    z-index: -1;
+    height: 20px; width: 20px;
+    rotate: 45deg;
+    left: 12px;
+    position: absolute;
+    background: #6458ce;
 }
 .popup nav .day.active {
     border-color: #3B2EB2;
@@ -274,7 +536,7 @@ footer .container h4 {
     flex-direction: column;
     gap: 20px;
     position: absolute;
-    width: 80vw; height: 70vh;
+    width: 75vw; height: 65vh;
     top: 50%; left: -80%;
     padding: 20px;
     transform: translateY(-50%);
@@ -314,14 +576,93 @@ footer .container h4 {
     bottom: -100px;
     animation: landUp 1s ease forwards;
 }
+.addBtnContainer.active button {
+    transform: rotate(45deg);
+}
+.lower .tooltipOptions {
+    left: 0; bottom: 0;
+    width: calc(100vw - 40px);
+    margin: 20px;
+}
+.lower .bellOptions {
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+}
+.lower .bellOptions h4 {
+    height: fit-content;
+}
+.lower .bellOptions::before {
+    content: "";
+    height: 20px; width: 20px;
+    background: linear-gradient(to top right, #695ec9a9 50%, transparent 50%);
+    position: absolute;
+    bottom: -10px; left: 20px;
+    rotate: -45deg;
+}
+.lower *.active + .tooltipOptions {
+    bottom: 100px;
+    opacity: 1;
+    visibility: visible;
+    overflow: visible;
+}
+.lower *.active + .bellOptions {
+    height: 300px;
+}
+.addBtnContainer.active + .addOptions {
+    height: 235px;
+}
+#quickBellBtn {
+    display: flex;
+    width: 80px;
+    height: 80px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #6458ce;
+    border-radius: 50%;
+}
+#quickBellBtn.press {
+    scale: 1.2;
+    background: red;
+    animation: pressLeave 2s ease-in forwards;
+}
+@keyframes pressLeave {
+    50% {
+        background: yellow;
+    }
+    to {
+        background: green;
+    }
+}
+#quickBellBtn .ionicon {
+    background: #fff;
+    padding: 15px;
+    height: 50px;
+    border-radius: 50%;
+}
+#ringtoneSelect {
+    background: #ffffff13;
+    border: 0;
+    border-radius: 5px;
+    padding: 5px;
+}
+.addBtnContainer + .addOptions::before {
+    content: "";
+    height: 20px; width: 20px;
+    background: linear-gradient(to top right, #695ec9a9 50%, transparent 50%);
+    position: absolute;
+    bottom: -10px; left: calc(50% - 10px);
+    rotate: -45deg;
+}
 .addBtnContainer button {
     position: relative;
     height: 65px;
     width: 65px;
     z-index: 1;
+    transition: transform .5s ease, scale .25s ease;
 }
-.addBtnContainer button ion-icon {
-    font-size: 5rem;
+.addBtnContainer button .ionicon {
+    height: max-content;
 }
 
 .addBtnContainer::before {
@@ -344,7 +685,7 @@ footer .container h4 {
     border-bottom: 10px solid #030014;
 }
 
-.container::before {
+.body .container::before {
     content: "";
     z-index: -1;
     position: absolute;
@@ -352,17 +693,17 @@ footer .container h4 {
     width: 100%;
     top: 0; left: 0;
     filter: brightness(50%);
-    background: url(/data/bg.avif);
+    background: url(bg1.avif);
     transition: transform .5s ease;
 }
-.container:nth-of-type(2)::before {
-    background: url(https://img.pikbest.com/ai/illus_our/20230427/63635b8753dbcb0915235aae00ae5d7f.jpg!w700wp);
+.body .container:nth-of-type(2)::before {
+    background: url(bg2.webp);
     background-position: center;
 }
-.container:active::before {
+.body .container:active::before {
     transform: scale(1.2);
 }
-.container {
+.body .container {
     position: relative;
     overflow: hidden;
     height: 100%;
@@ -375,8 +716,9 @@ footer .container h4 {
     box-shadow: inset 0 50px 80px #3b2eb280,
                 0 10px 80px #3b2eb280;
 }
-.container button {
+.body .container button {
     margin-top: auto;
+    font-size: .8rem;
 }
 .timeContainer {
     display: flex;
@@ -394,8 +736,283 @@ footer .container h4 {
     line-height: 0;
     height: 10px;
 }
-.timeContainer .time {
-    font-size: 3.5em;
+.timeContainer .time span {
+    font-size: 2.8em;
     font-weight: 700;
     font-family: "Stardos Stencil", system-ui;
 }
+
+.ionicon {
+    height: 20px;
+    fill: #fff;
+}
+
+
+.dialog {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    width: 100%;
+    background: #00000077;
+    backdrop-filter: blur(20px);
+    z-index: 999;
+    border: none;
+    padding: 20px;
+    flex-direction: column;
+    gap: 20px;
+}
+.dialog[open] {
+    display: flex;
+}
+.dialog nav {
+    font-weight: 800;
+    font-size: larger;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+.dialog nav .closeBtn {
+    rotate: 45deg;
+}
+#alarmEditor .days {
+    display: flex;
+    gap: 10px;
+    overflow: auto;
+}
+#alarmEditor .days .editorDay {
+    background: #3b2eb2;
+    min-height: 40px;
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+#alarmEditor .fullWidth {
+    width: 100%;
+}
+#alarmEditor .days .editorDay.excluded {
+    background: none;
+    border: 1px solid #776be6;
+}
+.editorSettingsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    justify-content: center;
+}
+#editorRingtoneSelect, #dateInput, #trackerDateInput, input[type=number] {
+    background: #ffffff13;
+    border: 0;
+    border-radius: 5px;
+    padding: 5px;
+    width: 50%;
+}
+#alarmEditor p {
+    color: #787878;
+}
+#alarmEditor .optionContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#TIMER_CONTAINER {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+#TIMER_CONTAINER .wrapper {
+    background: #ffffff13;
+    padding: 0;
+    width: 100%;
+    border-radius: 5px;
+    text-align: center;
+    padding: 20px 10px;
+}
+#TIMER_CONTAINER .wrapper p {
+    font-weight: bold;
+    color: var(--accent2);
+    text-transform: uppercase;
+    filter: brightness(130%);
+}
+#TIMER_CONTAINER .numbers {
+    max-height: 300px;
+    overflow: auto;
+    scroll-snap-type: y mandatory;
+    scroll-snap-align: end;
+    scroll-behavior: smooth;
+}
+#TIMER_CONTAINER .numbers .number {
+    font-size: 4rem;
+    line-height: 100px;
+    scroll-snap-align: center;
+    color: var(--light3);
+    font-weight: bolder;
+    scale: 0.5;
+    user-select: none;
+    transition: color .5s ease;
+    font-family: "Stardos Stencil", system-ui;
+}
+#TIMER_CONTAINER .numbers .number.selected {
+    color: var(--light1);  
+    scale: 1;
+    outline: 1px solid;
+}
+#TIMER_CONTAINER .numbers .number:first-of-type {
+    margin-top: 100px;
+}
+#TIMER_CONTAINER .numbers .number:last-of-type {
+    margin-bottom: 100px;
+}
+
+.toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 40px;
+    height: 24px;
+    border: 2px solid;
+    border-radius: 20px;
+    overflow: visible;
+}
+.toggle input {
+    display: none;
+}
+.toggle .slider {
+    pointer-events: none;
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ffffff13;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 34px;
+}
+.toggle .slider::before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 4px;
+    bottom: 4px;
+    background-color: #ddd;
+    -webkit-transition: .4s;
+    transition: .4s;    
+    box-shadow: 0 0 2px green;
+    border-radius: 50%;
+}
+.toggle input:checked + .slider {
+    background-color: #3b2eb280;
+}
+.toggle input:checked + .slider::before {
+    -webkit-transform: translateX(14px);
+    -ms-transform: translateX(14px);
+    transform: translateX(14px);
+}
+
+.toggle::before {
+    content: "OFF";
+    position: absolute;
+    right: 45px;
+    font-family: monospace;
+}
+.toggle:has(input:checked)::before {
+    content: "ON";
+}
+
+
+#attendanceTracker .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    max-height: 80vh;
+}
+#attendanceTracker .table {
+    overflow: auto;
+    border-radius: 8px;
+}
+#attendanceTracker .header {
+    background: #3B2EB2;
+    font-weight: bold;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 4fr 1fr;
+    position: sticky;
+    top: 0;
+}
+#attendanceTracker .header * {
+    overflow: visible;
+    text-align: start;
+}
+#attendanceTracker .header :nth-child(3), #attendanceTracker .header :nth-child(2) {
+    text-align: center !important;
+}
+#attendanceTracker .items .item:nth-of-type(2n+1) {
+    background: #eee;
+}
+#attendanceTracker .items .item {
+    display: grid;
+    align-items: center;
+    grid-template-columns: 2fr 1fr 4fr 1fr;
+    padding: 10px;
+    background: #ccc;
+}
+#attendanceTracker .items :nth-child(3), #attendanceTracker .items :nth-child(2) {
+    justify-content: center;
+}
+#attendanceTracker .items .item * {
+    color: #000;
+    display: flex;
+}
+#attendanceTracker .items .item span:last-of-type {margin-left: auto}
+#attendanceTracker .bottom button {width: 100%}
+#attendanceTracker .bottom {
+    position: absolute;
+    bottom: 0; left: 0;
+    padding: 20px;
+    width: 100%;
+}
+#attendanceTracker #addNewEntry + #entryForm {
+    display: none;
+}
+#attendanceTracker #addNewEntry.active + #entryForm {
+    display: flex;
+    position: absolute;
+    flex-direction: column;
+    top: -70vh; left: 5vw;
+    height: 50vh; width: 90vw;
+    padding: 20px;
+    border-radius: 10px;
+    background: #3B2EB2;
+    box-shadow: 0 0 100px 10px #000;
+    justify-content: space-between;
+}
+#entryForm .optionContainer {
+    display: flex;
+    align-items: center;
+    padding-block: 5px;
+    justify-content: space-between;
+}
+
+@media only screen and (min-width: 500px) {
+    body::after {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        content: "This app only works in potrait mode";
+    }
+    main {
+        display: none;
+    }
+}
+
+svg {pointer-events: none;}
